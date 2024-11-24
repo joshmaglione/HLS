@@ -1,6 +1,5 @@
-#include <iostream>
 #include <string>
-#include <vector>
+#include <array>
 #include "string_manip.h"
 #include "power_subset.h"
 
@@ -22,44 +21,6 @@ int str_to_tab_size(std::string s){
 		t = s.substr(0, found);
 	return count_char(t, ',') + 1;
 }
-
-// Not optimized well...
-// PowerSubset row_word_to_ps(std::string s)
-// {
-// 	int i = 0;
-// 	int row = 0;
-// 	int N = s.length();
-// 	std::vector<std::vector<int> > T (str_to_tab_size(s));
-
-// 	while (i < N)
-// 	{
-// 		if (s[i] == '|')
-// 		{
-// 			i++;
-// 			row = 0;
-// 		}
-// 		else if (s[i] == ',')
-// 		{
-// 			i++;
-// 			row += 1;
-// 		}
-// 		else 
-// 		{
-// 			int j = 0;
-// 			while (j < N - i) 
-// 			{
-// 				j++;
-// 				if ((s[i + j] == ',') || (s[i + j] == '|'))
-// 					break;
-// 			}
-// 			T[row].emplace_back(std::stoi(s.substr(i, j)));
-// 			i += j;
-// 		}
-// 	}
-// 	PowerSubset PS;
-// 	PS.subsets = T;
-// 	return PS;
-// }
 
 PowerSubset set_str_to_ps(std::string s)
 {

@@ -1,8 +1,10 @@
 #include <iostream>
+#include <chrono>
 #include <string>
 #include "string_manip.h"
 #include "power_subset.h"
 #include "polynomial.h"
+#include "leg_polynomial.h"
 
 void print_array(
 	const std::array<unsigned short int, 8>& a, 
@@ -22,21 +24,7 @@ void print_array(
 	std::cout << a[7] << "]" << std::endl;
 }
 
-int main()
-{
-	Polynomial f, g, h;
-	f.coeffs = std::vector<mpz_class> {1, 1, -1};
-	g.coeffs = std::vector<mpz_class> {1, 3, 1};
-	f.deg = 2;
-	g.deg = 2;
-	f.print();
-	g.print();
-	h = f + g;
-	h.print();
-	std::cout << h.deg << std::endl;
-}
-
-int main_() 
+int main() 
 {
 	int decision;
 	std::string input;
@@ -59,6 +47,9 @@ int main_()
 				std::cout << " and is a tableau." << std::endl;
 				std::cout << "Now I want to compute its leg set" << std::endl;
 				print_array(get_leg_set(PS), true, false);
+				std::cout << "Now I want to compute the leg polynomial" << std::endl;
+				Polynomial Phi = get_leg_polynomial(PS);
+				Phi.print();
 			}
 			else
 				std::cout << " but is not a tableau." << std::endl;
@@ -70,5 +61,4 @@ int main_()
 	{
 		std::cout << "Not implemented." << std::endl;
 	}
-	return 0;
 }

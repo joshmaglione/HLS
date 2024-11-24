@@ -6,10 +6,14 @@
 
 
 /*
-	The main data is subsets which we assume to be a subset of 
-		2^{[9]} \ {[9], empty-set}.
-	Therefore we write this as an array of (maximal) length 2^9 - 2 = 510
-	made up from arrays of (maximal) length 8.
+	PowerSubset encodes a subset of 2^{[n]} \ {[9], emptyset}, where n <= 9.
+
+	Attributes:
+	    n_sets : an unsigned short equal to the cardinality of the subset. Since
+	    	[9] and emptyset are not possible members, the maximum value is 
+			510 = 2^9 - 2.
+	    subsets : an array of arrays each of which correspond to a subset.
+	    	Since [9] is not a possible subset, the maximal cardinality is 8. 
 */
 class PowerSubset
 {
