@@ -6,6 +6,28 @@
 #include "polynomial.h"
 #include "power_subset.h"
 
+// nonnegative c and positive d
+void print_term(mpz_class c, int d)
+{
+	if (c != 0)
+	{
+		if (c == 1)
+		{
+			if (d == 1)
+				std::cout << "Y";
+			else 
+				std::cout << "Y^" << d;
+		}
+		else
+		{
+			if (d == 1)
+				std::cout << c << "Y";
+			else 
+				std::cout << c << "Y^" << d;
+		}
+	}
+}
+
 // Function to print a Polynomial in the variable Y.
 void Polynomial::print() const
 {
@@ -19,25 +41,27 @@ void Polynomial::print() const
 			k++;
 		if (k == 0)
 			std::cout << coeffs[k];
-		else
-			std::cout << coeffs[k] << "Y^" << k;
-		for (int i = k + 1; i <= deg; i++)
+		else 
 		{
-			if (coeffs[i] == 0)
-				continue;
-			if (coeffs[i] > 0)
+			if (coeffs[k] < 0)
 			{
-				if (coeffs[i] == 1)
-					std::cout << " + Y^" << i;
-				else
-					std::cout << " + " << coeffs[i] << "Y^" << i;
+				std::cout << "- ";
+				print_term(-coeffs[k], k);
 			}
 			else
+				print_term(coeffs[k], k);
+		}
+		for (int i = k + 1; i <= deg; i++)
+		{
+			if (coeffs[i] < 0)
 			{
-				if (coeffs[i] == -1)
-					std::cout << " - Y^" << i;
-				else
-					std::cout << " - " << -coeffs[i] << "Y^" << i;
+				std::cout << " - ";
+				print_term(-coeffs[i], i);
+			}
+			else if (coeffs[i] > 0)
+			{
+				std::cout << " + ";
+				print_term(coeffs[i], i);
 			}
 		}
 		std::cout << std::endl;
@@ -76,6 +100,32 @@ Polynomial Polynomial::add(const Polynomial& other) const
 Polynomial Polynomial::operator+(const Polynomial& other) const
 {
 	return add(other);
+}
+
+// Function to subtract two Polynomials.
+Polynomial Polynomial::sub(const Polynomial& other) const
+{
+	unsigned short int d;
+	// Determine the (potential) degree of the sum
+	if (deg >= other.deg)
+		d = deg;
+	else
+		d = other.deg;
+	// Build coefficient vector
+	std::vector<mpz_class> C;
+	C.reserve(d + 1);
+	for (int i = 0; i <= d; i++)
+		C.emplace_back(this->coefficient(i) - other.coefficient(i));
+	// Verify the degree is correct
+	while ((C[d] == 0) && (d > 0))
+		d--;
+	return Polynomial(d, C);
+}
+
+// Function to subtract two Polynomials via -.
+Polynomial Polynomial::operator-(const Polynomial& other) const
+{
+	return sub(other);
 }
 
 // Function to multiply two Polynomials to each other.

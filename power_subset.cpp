@@ -1,8 +1,10 @@
-#include <iostream>
-#include <array>
-#include <vector>
 #include <algorithm>
+#include <array>
+#include <cassert>
+#include <iostream>
+#include <vector>
 #include "power_subset.h"
+#include "leg_polynomial.h"
 
 int pos_size(const std::array<unsigned short int, 8>& a)
 {
@@ -46,7 +48,9 @@ bool tab_ord_le(
 	return true;
 }
 
-
+// -----------------------------------------------------------------------------
+// 		PowerSubset Methods
+// -----------------------------------------------------------------------------
 void PowerSubset::print() const
 {
 	int cutoff;
@@ -91,4 +95,77 @@ bool PowerSubset::is_tableau() const
 			return false;
 	}
 	return true;
+}
+
+void PowerSubset::sort() 
+{
+	std::sort(subsets.begin(), subsets.begin() + n_sets, ps_ord_le);
+}
+
+PowerSubset PowerSubset::subset(unsigned int s) const
+{
+	unsigned short int new_n_set = __builtin_popcount(s);
+	unsigned short int count = 0;
+	unsigned int i = 1;
+	int j = 0;
+	std::array<std::array<unsigned short int, 8>, 510> S;
+	while (count < new_n_set)
+	{
+		if (s & i)
+		{
+			S[count] = subsets[j];
+			count++;
+		}
+		i <<= 1;
+		j++;
+	}
+	return PowerSubset(new_n_set, S);
+}
+
+// Given a tableau, return the expanded leg polynomial.
+Polynomial PowerSubset::leg_polynomial() const
+{
+	// assert(this->is_tableau());
+	std::array<unsigned short int, 8> a = get_leg_set(*this);
+	std::vector<mpz_class> C = {1};
+	Polynomial Phi = Polynomial(0, C);
+	for (int i = 0; i < 7; i++)
+	{
+		if (a[i] != 0)
+			Phi = Phi * binomial_poly(i + 1, a[i]);
+	}
+	return Phi;
+}
+
+Polynomial PowerSubset::extended_leg_polynomial() const
+{
+	Polynomial ext_Phi;
+	if (n_sets & 1)
+		ext_Phi = Polynomial(-1);
+	else
+		ext_Phi = Polynomial(1);
+
+	if (n_sets <= 32)
+	{
+		unsigned int a = 1 << n_sets;				// a == 2^{n_sets}
+		unsigned int masker = (1 << n_sets) - 1;
+		for (unsigned int i = a - 1; i > 0; i--)
+		{
+			PowerSubset sub_PS = this->subset(i);
+			if (sub_PS.is_tableau())
+			{
+				// We decide if we have an odd number of subsets excluded from
+				// our subset sub_PS.
+				if ((n_sets - __builtin_popcount(i & masker)) & 1)
+				{
+					ext_Phi = ext_Phi - sub_PS.leg_polynomial();
+				}
+				else
+				{
+					ext_Phi = ext_Phi + sub_PS.leg_polynomial();
+				}
+			}
+		}
+	}
+	return ext_Phi;
 }

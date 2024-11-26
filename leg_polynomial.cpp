@@ -1,5 +1,4 @@
 #include <array>
-#include <cassert>
 #include <gmp.h>
 #include <gmpxx.h>
 #include "power_subset.h"
@@ -23,7 +22,6 @@ bool is_in(std::array<unsigned short int, 8>& a, unsigned short int x)
 // corresponds to the degree i + 1.
 std::array<unsigned short int, 8> get_leg_set(const PowerSubset& PS)
 {
-	assert(PS.is_tableau());
 	std::array<unsigned short int, 8> counts {0};
 	for (int i = 0; i < PS.n_sets - 1; i++)
 	{
@@ -85,18 +83,4 @@ Polynomial binomial_poly(int d, int e)
 			C.push_back(0);
 	}
 	return Polynomial(deg, C);
-}
-
-// Given a tableau, return the expanded leg polynomial.
-Polynomial get_leg_polynomial(const PowerSubset& PS)
-{
-	std::array<unsigned short int, 8> a = get_leg_set(PS);
-	std::vector<mpz_class> C = {1};
-	Polynomial Phi = Polynomial(0, C);
-	for (int i = 0; i < 7; i++)
-	{
-		if (a[i] != 0)
-			Phi = Phi * binomial_poly(i + 1, a[i]);
-	}
-	return Phi;
 }
