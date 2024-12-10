@@ -70,6 +70,25 @@ void PowerSubset::print() const
 	std::cout << "}" << std::endl;
 }
 
+void PowerSubset::print_term() const
+{
+	std::cout << "X_{";
+	for (int i = 0; i < n_sets; i++)
+	{
+		int j = 0;
+		auto a = subsets[i];
+		while ((j < 8) && (a[j] > 0))
+		{
+			std::cout << a[j];
+			j++;
+		}
+		if (i < n_sets - 1)
+			std::cout << '|';
+		else
+			std::cout << '}';
+	}
+}
+
 bool PowerSubset::is_sorted() const
 {
 	if (n_sets <= 1)
@@ -127,7 +146,8 @@ Polynomial PowerSubset::leg_polynomial() const
 {
 	// assert(this->is_tableau());
 	std::array<unsigned short int, 8> a = get_leg_set(*this);
-	std::vector<mpz_class> C = {1};
+	std::array<mpz_class, 37> C = {0};
+	C[0] = 1;
 	Polynomial Phi = Polynomial(0, C);
 	for (int i = 0; i < 7; i++)
 	{
@@ -144,7 +164,6 @@ Polynomial PowerSubset::extended_leg_polynomial() const
 		ext_Phi = Polynomial(-1);
 	else
 		ext_Phi = Polynomial(1);
-
 	if (n_sets <= 32)
 	{
 		unsigned int a = 1 << n_sets;				// a == 2^{n_sets}
@@ -157,13 +176,9 @@ Polynomial PowerSubset::extended_leg_polynomial() const
 				// We decide if we have an odd number of subsets excluded from
 				// our subset sub_PS.
 				if ((n_sets - __builtin_popcount(i & masker)) & 1)
-				{
 					ext_Phi = ext_Phi - sub_PS.leg_polynomial();
-				}
 				else
-				{
 					ext_Phi = ext_Phi + sub_PS.leg_polynomial();
-				}
 			}
 		}
 	}

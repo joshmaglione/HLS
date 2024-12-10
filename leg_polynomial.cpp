@@ -71,16 +71,15 @@ mpz_class binomial(int n, int k)
 Polynomial binomial_poly(int d, int e)
 {
 	unsigned short int deg = d*e;
-	std::vector<mpz_class> C;
-	C.reserve(deg + 1);
+	std::array<mpz_class, 37> C {0};
 	for (unsigned int i = 0; i <= e; i++)
 	{
 		if (i & 1)
-			C.emplace_back(-binomial(e, i));
+			C[i] = -binomial(e, i);
 		else 
-			C.emplace_back(binomial(e, i));
-		for (int j = 0; j < d - 1; j++)
-			C.push_back(0);
+			C[i] = binomial(e, i);
+		// for (int j = 0; j < d - 1; j++)
+		// 	C.push_back(0);
 	}
 	return Polynomial(deg, C);
 }

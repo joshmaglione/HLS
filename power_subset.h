@@ -30,6 +30,7 @@ PowerSubset(unsigned short int n, std::array<std::array<unsigned short int, 8>, 
 }
 
 void print() const;
+void print_term() const;
 bool is_sorted() const;
 bool is_tableau() const;
 void sort();

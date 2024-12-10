@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <array>
 #include <gmp.h>
 #include <gmpxx.h>
 #include "polynomial.h"
@@ -33,7 +33,7 @@ void Polynomial::print() const
 {
 	std::string opp;
 	if (deg == 0)
-		std::cout << coeffs[0] << std::endl;
+		std::cout << coeffs[0];
 	else
 	{	
 		int k = 0;
@@ -64,8 +64,24 @@ void Polynomial::print() const
 				print_term(coeffs[i], i);
 			}
 		}
-		std::cout << std::endl;
 	}
+}
+
+bool Polynomial::operator==(const Polynomial& other) const
+{
+	if (deg != other.deg)
+		return false;
+	for (int i = 0; i <= deg; i++)
+	{
+		if (coeffs[i] != other.coeffs[i])
+			return false;
+	}
+	return true;
+}
+
+bool Polynomial::operator!=(const Polynomial& other) const
+{
+	return !(*this == other);	
 }
 
 // Function to get the coefficient of Y^i for any integer i.
@@ -85,11 +101,10 @@ Polynomial Polynomial::add(const Polynomial& other) const
 		d = deg;
 	else
 		d = other.deg;
-	// Build coefficient vector
-	std::vector<mpz_class> C;
-	C.reserve(d + 1);
+	// Build coefficient array
+	std::array<mpz_class, 37> C;
 	for (int i = 0; i <= d; i++)
-		C.emplace_back(this->coefficient(i) + other.coefficient(i));
+		C[i] = this->coefficient(i) + other.coefficient(i);
 	// Verify the degree is correct
 	while ((C[d] == 0) && (d > 0))
 		d--;
@@ -111,11 +126,10 @@ Polynomial Polynomial::sub(const Polynomial& other) const
 		d = deg;
 	else
 		d = other.deg;
-	// Build coefficient vector
-	std::vector<mpz_class> C;
-	C.reserve(d + 1);
+	// Build coefficient array
+	std::array<mpz_class, 37> C;
 	for (int i = 0; i <= d; i++)
-		C.emplace_back(this->coefficient(i) - other.coefficient(i));
+		C[i] = this->coefficient(i) - other.coefficient(i);
 	// Verify the degree is correct
 	while ((C[d] == 0) && (d > 0))
 		d--;
@@ -133,16 +147,15 @@ Polynomial Polynomial::mult(const Polynomial& other) const
 {
 	// Get the degree of the new polynomial
 	unsigned short int d = deg + other.deg;
-	// Build coefficient vector
-	std::vector<mpz_class> C;
+	// Build coefficient array
+	std::array<mpz_class, 37> C;
 	mpz_class ci;
-	C.reserve(d + 1);
 	for (int i = 0; i <= d; i++)
 	{
 		ci = 0;
 		for (int j = 0; j <= i; j++)
 			ci += this->coefficient(j) * other.coefficient(i - j);
-		C.push_back(ci);
+		C[i] = ci;
 	}
 	return Polynomial(d, C);
 }

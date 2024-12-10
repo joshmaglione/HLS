@@ -3,6 +3,7 @@
 #include <string>
 #include "string_manip.h"
 #include "power_subset.h"
+#include "power_subset_generator.h"
 #include "polynomial.h"
 #include "leg_polynomial.h"
 
@@ -24,14 +25,33 @@ void print_array(
 	std::cout << a[7] << "]" << std::endl;
 }
 
-int main() 
+void print_HLS_numerator(unsigned short int n)
 {
-	int decision;
-	std::string input;
+	std::cout << "Computing HLS_" << n << std::endl;
+	unsigned int S = 1 << ((1 << n) - 2);
+	PowerSubset PS;
+	Polynomial Phi;
+	Polynomial zero = Polynomial(0);
+	std::cout << '1';
+	for (unsigned int i = 1; i < S; i++)
+	{
+		PS = int_to_PS(i, n);
+		Phi = PS.extended_leg_polynomial();
+		if (Phi != zero)
+		{
+			std::cout << " + (";
+			Phi.print();
+			std::cout << ")*";
+			PS.print_term();
+		}
+	}
+	std::cout << std::endl;
+}
 
-	std::cout << "What do you want to do?\n  [0] : input a set of subsets of {1, 2, ..., 9},\n  [1] : compute numerator of HLS_n." << std::endl;
-	std::cin >> decision;
-	if (decision == 0)
+int interpret(char decision)
+{
+	std::string input;
+	if (decision == '0')
 	{
 		std::cout << "Please input the set as follows. The set{ {1,2}, {3} } should be input as\n    '12|3'." << std::endl;
 		std::cin >> input;
@@ -48,12 +68,14 @@ int main()
 			std::cout << "Now I want to compute the leg polynomial" << std::endl;
 			Polynomial Phi = PS.leg_polynomial();
 			Phi.print();
+			std::cout << std::endl;
 		}
 		else
 			std::cout << "not a tableau." << std::endl;
-			std::cout << "Now I want to compute the extended leg polynomial" << std::endl;
-			Polynomial ext_Phi = PS.extended_leg_polynomial();
-			ext_Phi.print();
+		std::cout << "Now I want to compute the extended leg polynomial" << std::endl;
+		Polynomial ext_Phi = PS.extended_leg_polynomial();
+		ext_Phi.print();
+		std::cout << std::endl;
 		return 0;
 	} 
 	std::cout << "For which n in {1, 2, ..., 5} do you want to compute HLS_n?" << std::endl;
@@ -65,7 +87,36 @@ int main()
 		return 0;
 	}
 	if (inp_int == 1)
-		std::cout << 1 << std::endl;
+	{
+		std::cout << '1' << std::endl;
 		return 0;
-	
+	}
+	auto start = std::chrono::steady_clock::now();
+	print_HLS_numerator(inp_int);
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_seconds{end - start};
+	std::cout << "Computation took: " << elapsed_seconds << std::endl;
+	return 0;
+}
+
+int main() 
+{
+	char decision;
+	bool running = true;
+
+	while (running)
+	{
+		std::cout << "What do you want to do?" << std::endl;
+		std::cout << "  [0] : compute (extended) leg polynomial," << std::endl;
+		std::cout << "  [1] : compute numerator of HLS_n," << std::endl;
+		std::cout << "  [q] : quit." << std::endl;
+		std::cin >> decision;
+		if (decision == 'q')
+			running = false;
+		else
+			{
+			interpret(decision);
+			std::cout << std::endl;
+			}
+	}
 }
